@@ -2,3 +2,8 @@ fastapi==0.112.0
 yt_dlp==2024.8.6
 uvicorn==0.30.5
 python-multipart
+Django
+gunicorn
+sqlparse
+asgiref
+tzdata
