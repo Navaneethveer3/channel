@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function fetchQualities() {
+            const link = document.getElementById('video-url').value;
+            if (!link) {
+                alert('Please enter a video URL');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/video/get_video_qualities/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: new URLSearchParams({ 'link': link })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+
+                const result = await response.json();
+                console.log('Result:', result); // Debugging line
+
+                if (result.status === 'success') {
+                    const qualitySelect = document.getElementById('video-quality');
+                    qualitySelect.innerHTML = ''; // Clear previous options
+
+                    result.qualities.forEach(q => {
+                        const option = document.createElement('option');
+                        option.value = q.format_id;
+                        option.text = `${q.quality}p - ${q.format}`;
+                        qualitySelect.add(option);
+                    });
+
+                    document.getElementById('quality-section').style.display = 'block';
+                    document.getElementById('download-section').style.display = 'block'; // Show the download section
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('Failed to fetch video qualities: ' + error.message);
+            }
+        }
+
+        async function downloadVideo() {
+            const link = document.getElementById('video-url').value;
+            const quality = document.getElementById('video-quality').value;
+
+            if (!link) {
+                alert('Please enter a video URL');
+                return;
+            }
+            if (!quality) {
+                alert('Please select a video quality');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/video/download_video/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: new URLSearchParams({ 'link': link, 'quality': quality })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert('Download started. You can find the video at: ' + result.file_path);
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('Failed to download video: ' + error.message);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>YouTube Video Downloader</h1>
+    
+    <label for="video-url">YouTube Video URL:</label>
+    <input type="text" id="video-url" placeholder="Enter video URL here">
+    <button onclick="fetchQualities()">Get Video Qualities</button>
+    
+    <br><br>
+    
+    <div id="quality-section" style="display: none;">
+        <label for="video-quality">Select Video Quality:</label>
+        <select id="video-quality">
+            <option value="">--Select Quality--</option>
+        </select>
+    </div>
+    
+    <br><br>
+    
+    <div id="download-section" style="display: none;">
+        <button onclick="downloadVideo()">Download Video</button>
+    </div>
+</body>
+</html>
