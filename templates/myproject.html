@@ -30,6 +30,7 @@
             try {
                 const response = await fetch('/video/get_video_qualities/', {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-CSRFToken': getCookie('csrftoken')
@@ -81,6 +82,7 @@
             try {
                 const response = await fetch('/video/download_video/', {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-CSRFToken': getCookie('csrftoken')
