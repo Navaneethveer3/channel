@@ -137,4 +137,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     'https://channel-1.onrender.com',
 ]
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'x-csrftoken',
+    'authorization',
+    # Add other headers if needed
+]
 
