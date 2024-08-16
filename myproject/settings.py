@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+_8c-q&b7ed3^&3_&hw0oyfwve#ybp^8lf8@1!b2(-+@3&0m26
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'channel-2.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'channel-1.onrender.com']
 
 
 # Application definition
@@ -133,6 +133,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CORS_ALLOW_ALL_ORIGINS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
-    'https://channel-2.onrender.com/video/',
+    'https://channel-1.onrender.com/video/',
 ]
 
