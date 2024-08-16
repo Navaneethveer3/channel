@@ -1,7 +1,7 @@
 from django.http import JsonResponse, Http404, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-import yt_dlp
+import requests
 import os
 
 # Directory where downloaded videos will be saved
@@ -13,6 +13,20 @@ os.makedirs(download_path, exist_ok=True)
 def myproject(request):
     return render(request, 'myproject.html')
 
+def get_video_info(api_key, video_id):
+    url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=contentDetails,snippet'
+    response = requests.get(url)
+    data = response.json()
+    
+    if 'items' in data and len(data['items']) > 0:
+        video_info = data['items'][0]
+        return {
+            'title': video_info['snippet']['title'],
+            'duration': video_info['contentDetails']['duration']
+        }
+    else:
+        raise ValueError('Video not found')
+
 @csrf_exempt
 def get_video_qualities(request):
     """
@@ -20,24 +34,24 @@ def get_video_qualities(request):
     """
     if request.method == 'POST':
         link = request.POST.get('link')
+        api_key = 'your_youtube_data_api_key'  # Replace with your YouTube Data API key
         
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
 
         try:
-            ydl_opts = {
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
-            }
-            with yt_dlp.YoutubeDL() as ydl:
-                info = ydl.extract_info(link, download=False)
-                formats = info.get('formats', [])
-                quality_list = [{
-                    'format_id': f.get('format_id'),
-                    'format': f.get('format'),
-                    'quality': f.get('height', 'unknown')  # Height represents quality
-                } for f in formats]
+            video_id = link.split('v=')[-1]  # Extract video ID from URL
+            video_info = get_video_info(api_key, video_id)
             
-            return JsonResponse({'status': 'success', 'qualities': quality_list})
+            # This is a placeholder for formats, since YouTube Data API doesn't provide video quality details
+            # You would need to integrate this with another method to get exact formats if required
+            quality_list = [{
+                'format_id': 'unknown',
+                'format': 'unknown',
+                'quality': 'unknown'
+            }]
+            
+            return JsonResponse({'status': 'success', 'qualities': quality_list, 'video_info': video_info})
         except Exception as e:
             return JsonResponse({'error': f'Failed to retrieve video qualities: {e}'}, status=500)
     else:
