@@ -133,6 +133,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CORS_ALLOW_ALL_ORIGINS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
-    'https://channel-1.onrender.com/video/',
+    'https://channel-1.onrender.com',
 ]
 
