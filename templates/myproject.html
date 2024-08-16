@@ -48,6 +48,7 @@
                     const qualitySelect = document.getElementById('video-quality');
                     qualitySelect.innerHTML = ''; // Clear previous options
 
+                    // Add options dynamically or handle if no qualities are returned
                     result.qualities.forEach(q => {
                         const option = document.createElement('option');
                         option.value = q.format_id;
