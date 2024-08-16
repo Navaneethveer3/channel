@@ -25,6 +25,9 @@ def get_video_qualities(request):
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
 
         try:
+            ydl_opts = {
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
             with yt_dlp.YoutubeDL() as ydl:
                 info = ydl.extract_info(link, download=False)
                 formats = info.get('formats', [])
