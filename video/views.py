@@ -25,7 +25,6 @@ def get_video_info(api_key, video_id):
     """
     Fetch video title and duration using YouTube Data API.
     """
-    api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
     url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=contentDetails,snippet'
     response = requests.get(url)
     if response.status_code != 200:
@@ -51,11 +50,11 @@ def get_video_qualities(request):
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
 
         try:
-            api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
-            # Fetch available formats and qualities using yt-dlp
             ydl_opts = {
                 'referer': 'https://www.youtube.com/',
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+                'noplaylist': True,
+                'geo_bypass': True
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -67,7 +66,7 @@ def get_video_qualities(request):
                 {
                     'format_id': f.get('format_id', 'unknown'),
                     'format': f.get('format', 'unknown'),
-                    'quality': f.get('height', 'unknown')  # YouTube formats include 'height' for video quality
+                    'quality': f.get('height', 'unknown')
                 }
                 for f in formats
             ]
@@ -99,13 +98,17 @@ def download_video(request):
 
         format_string = f"bestvideo[height >= {quality}]+bestaudio/best"
 
-        youtube_dl_options = {
+        ydl_opts = {
             "format": format_string,
             "outtmpl": output_file,
+            'referer': 'https://www.youtube.com/',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+            'noplaylist': True,
+            'geo_bypass': True
         }
         
         try:
-            with yt_dlp.YoutubeDL(youtube_dl_options) as ydl:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([link])
             
             video_info = get_video_info(settings.YOUTUBE_API_KEY, video_id)
