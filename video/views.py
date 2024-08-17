@@ -23,17 +23,37 @@ def extract_video_id(url):
         return match.group(1)
     raise ValueError('Invalid YouTube URL')
 
+def get_video_info(api_key, video_id):
+    """
+    Fetch video title and duration using YouTube Data API.
+    """
+    api_key = settings.YOUTUBE_API_KEY
+    url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=contentDetails,snippet'
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise ValueError(f'YouTube API request failed with status code {response.status_code}')
+    
+    data = response.json()
+    items = data.get('items', [])
+    if items:
+        video_info = items[0]
+        return {
+            'title': video_info['snippet']['title'],
+            'duration': video_info['contentDetails']['duration']
+        }
+    else:
+        raise ValueError('Video not found')
+
 @csrf_exempt
 def get_video_qualities(request):
     """Fetch available video formats and qualities for the given YouTube video URL."""
+    api_key = settings.YOUTUBE_API_KEY
     if request.method == 'POST':
         link = request.POST.get('link')
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
 
         try:
-            video_id = extract_video_id(link)
-            
             # Fetch available formats and qualities using yt-dlp
             ydl_opts = {'quiet': True}
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -54,13 +74,13 @@ def get_video_qualities(request):
 
         except Exception as e:
             return JsonResponse({'error': f'Failed to retrieve video qualities: {e}'}, status=500)
+    
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
 
 @csrf_exempt
 def download_video(request):
     """
-    Download the video in the specified resolution available.
+    Download the video in the specified resolution available and return video info.
     """
     if request.method == 'POST':
         link = request.POST.get('link')
@@ -71,7 +91,8 @@ def download_video(request):
         if not quality:
             return JsonResponse({'error': 'Quality parameter is required'}, status=400)
 
-        filename = f"video-{link[-11:]}.mp4"
+        video_id = extract_video_id(link)
+        filename = f"video-{video_id}.mp4"  # Use video ID to generate filename
         output_file = os.path.join(download_path, filename)
 
         # Construct the format string based on the selected quality
@@ -85,13 +106,22 @@ def download_video(request):
         try:
             with yt_dlp.YoutubeDL(youtube_dl_options) as ydl:
                 ydl.download([link])
-            return JsonResponse({"status": "success", "file_path": filename})
+            
+            # Fetch video info
+            api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'  # Consider moving to settings
+            video_info = get_video_info(api_key, video_id)
+            
+            return JsonResponse({
+                "status": "success",
+                "file_path": filename,
+                "video_info": video_info
+            })
         except yt_dlp.utils.DownloadError as de:
             return JsonResponse({'error': f'Download failed: {str(de)}'}, status=500)
         except Exception as e:
             return JsonResponse({'error': f'Download failed: {str(e)}'}, status=500)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def serve_file(request, filename):
     """
