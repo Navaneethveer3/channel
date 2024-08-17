@@ -54,6 +54,11 @@ def get_video_qualities(request):
             api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
             # Fetch available formats and qualities using yt-dlp
             ydl_opts = {
+                'referer': 'https://www.youtube.com/',
+                'geo_bypass': True,
+                'no_check_certificate': True,
+                'ignoreerrors': True,
+                'quiet': True
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
             }
 
