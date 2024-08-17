@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 import os
 import yt_dlp
-import logging
 import re
 from django.conf import settings
 
@@ -16,9 +15,6 @@ os.makedirs(download_path, exist_ok=True)
 
 def myproject(request):
     return render(request, 'myproject.html')
-
-# Set up logging
-logger = logging.getLogger(__name__)
 
 def extract_video_id(url):
     """
@@ -83,7 +79,6 @@ def get_video_qualities(request):
             return JsonResponse({'status': 'success', 'qualities': quality_list, 'video_info': video_info})
 
         except Exception as e:
-            logger.error(f'Failed to retrieve video qualities: {e}')
             return JsonResponse({'error': f'Failed to retrieve video qualities: {e}'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
