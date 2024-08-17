@@ -53,7 +53,10 @@ def get_video_qualities(request):
 
         try:
             # Fetch available formats and qualities using yt-dlp
-            ydl_opts = {'quiet': True}
+            ydl_opts = {
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
+            }
+
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
                 formats = info_dict.get('formats', [])
