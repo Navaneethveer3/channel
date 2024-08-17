@@ -35,7 +35,7 @@ def get_video_qualities(request):
     """
     if request.method == 'POST':
         link = request.POST.get('link')
-        api_key = 'your_youtube_data_api_key'  # Replace with your YouTube Data API key
+        api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'  # Replace with your YouTube Data API key
         
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
