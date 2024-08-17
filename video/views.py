@@ -55,7 +55,7 @@ def get_video_qualities(request):
             ydl_opts = {
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
             }
-            time.sleep(5)
+            time.sleep(15)
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
