@@ -21,10 +21,11 @@ def extract_video_id(url):
         return match.group(1)
     raise ValueError('Invalid YouTube URL')
 
-def get_video_info(api_key='AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8', video_id):
+def get_video_info(api_key, video_id):
     """
     Fetch video title and duration using YouTube Data API.
     """
+    api_key = settings.YOUTUBE_API_KEY
     url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=contentDetails,snippet'
     response = requests.get(url)
     if response.status_code != 200:
@@ -113,7 +114,7 @@ def download_video(request):
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([link])
             
-            video_info = get_video_info(api_key, video_id)
+            video_info = get_video_info(settings.YOUTUBE_API_KEY, video_id)
             
             return JsonResponse({
                 "status": "success",
