@@ -52,8 +52,7 @@ def get_video_qualities(request):
     Fetch available video formats and qualities for the given YouTube video URL.
     """
     if request.method == 'POST':
-        link = request.POST.get('link')
-        api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'  # Use environment variable or Django settings
+        link = request.POST.get('link') or request.body.decode('utf-8').split('=')[1]
         
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
@@ -83,6 +82,7 @@ def get_video_qualities(request):
             return JsonResponse({'error': f'Failed to retrieve video qualities: {e}'}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 @csrf_exempt
 def download_video(request):
