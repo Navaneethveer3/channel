@@ -6,10 +6,11 @@ import os
 import yt_dlp
 import re
 from django.conf import settings
-import time
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
+
+# Ensure the download path exists
 os.makedirs(download_path, exist_ok=True)
 
 def myproject(request):
@@ -46,26 +47,15 @@ def get_video_info(api_key, video_id):
 @csrf_exempt
 def get_video_qualities(request):
     """Fetch available video formats and qualities for the given YouTube video URL."""
+    api_key = settings.YOUTUBE_API_KEY
     if request.method == 'POST':
         link = request.POST.get('link')
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
 
         try:
-            ydl_opts = {
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'referer': 'https://www.youtube.com/',
-                'noplaylist': True,
-                'geo_bypass': True,
-                'age_limit': None,
-                'headers': {
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Connection': 'keep-alive',
-                }
-            }
-           time.sleep(3)
-
+            # Fetch available formats and qualities using yt-dlp
+            ydl_opts = {'quiet': True}
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
                 formats = info_dict.get('formats', [])
@@ -75,7 +65,7 @@ def get_video_qualities(request):
                 {
                     'format_id': f.get('format_id', 'unknown'),
                     'format': f.get('format', 'unknown'),
-                    'quality': f.get('height', 'unknown')
+                    'quality': f.get('height', 'unknown')  # YouTube formats include 'height' for video quality
                 }
                 for f in formats
             ]
@@ -102,25 +92,24 @@ def download_video(request):
             return JsonResponse({'error': 'Quality parameter is required'}, status=400)
 
         video_id = extract_video_id(link)
-        filename = f"video-{video_id}.mp4"
+        filename = f"video-{video_id}.mp4"  # Use video ID to generate filename
         output_file = os.path.join(download_path, filename)
 
+        # Construct the format string based on the selected quality
         format_string = f"bestvideo[height >= {quality}]+bestaudio/best"
 
-        ydl_opts = {
-            "format": format_string,
+        youtube_dl_options = {
+            "format": format_string,  # Set format to the selected quality
             "outtmpl": output_file,
-            'referer': 'https://www.youtube.com/',
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'noplaylist': True,
-            'geo_bypass': True
         }
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(youtube_dl_options) as ydl:
                 ydl.download([link])
             
-            video_info = get_video_info(settings.YOUTUBE_API_KEY, video_id)
+            # Fetch video info
+            api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'  # Consider moving to settings
+            video_info = get_video_info(api_key, video_id)
             
             return JsonResponse({
                 "status": "success",
