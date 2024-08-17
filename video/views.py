@@ -6,6 +6,7 @@ import os
 import yt_dlp
 import re
 from django.conf import settings
+import time
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
@@ -52,13 +53,9 @@ def get_video_qualities(request):
 
         try:
             ydl_opts = {
-                'referer': 'https://www.youtube.com/',
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-                'noplaylist': True,  # Ensure only the single video is processed
-                'geo_bypass': True,  # Bypass geographical restrictions
-                'no_warnings': True,  # Suppress warnings
-                'writeinfojson': False,  # Avoid writing additional metadata files
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
             }
+            time.sleep(5)
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
