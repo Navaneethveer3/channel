@@ -99,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-YOUTUBE_API_KEY = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
+YOUTUBE_API_KEY = 'AIzaSyDJEjm85PuuBDDu3QiKrrPJxzBrjynxZrs'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
