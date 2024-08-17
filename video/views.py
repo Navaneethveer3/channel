@@ -43,14 +43,22 @@ def get_video_qualities(request):
         try:
             video_id = link.split('v=')[-1]  # Extract video ID from URL
             video_info = get_video_info(api_key, video_id)
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info_dict = ydl.extract_info(link, download=False)
+                formats = info_dict.get('formats', [])
+
+            # Extract available qualities from formats
+            quality_list = [
+                {
+                    'format_id': f.get('format_id', 'unknown'),
+                    'format': f.get('format', 'unknown'),
+                    'quality': f.get('height', 'unknown')
+                }
+                for f in formats
+            ]
             
-            # This is a placeholder for formats, since YouTube Data API doesn't provide video quality details
-            # You would need to integrate this with another method to get exact formats if required
-            quality_list = [{
-                'format_id': 'unknown',
-                'format': 'unknown',
-                'quality': 'unknown'
-            }]
+            # Fetch video info from YouTube Data API
+            video_info = get_video_info(api_key, video_id)
             
             return JsonResponse({'status': 'success', 'qualities': quality_list, 'video_info': video_info})
         except Exception as e:
