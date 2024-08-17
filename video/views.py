@@ -52,7 +52,7 @@ def get_video_qualities(request):
 
         try:
             ydl_opts = {
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Mobile Safari/537.36',
             }
             time.sleep(5)
 
@@ -101,7 +101,7 @@ def download_video(request):
             "format": format_string,
             "outtmpl": output_file,
             'referer': 'https://www.youtube.com/',
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+            'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Mobile Safari/537.36',
             'noplaylist': True,
             'geo_bypass': True
         }
