@@ -53,9 +53,9 @@ def get_video_qualities(request):
 
         try:
             ydl_opts = {
-                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Mobile Safari/537.36'
+                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             }
-            time.sleep(5)
+            time.sleep(2)
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
@@ -102,7 +102,7 @@ def download_video(request):
             "format": format_string,
             "outtmpl": output_file,
             'referer': 'https://www.youtube.com/',
-            'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Mobile Safari/537.36',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             'noplaylist': True,
             'geo_bypass': True
         }
