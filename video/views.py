@@ -51,10 +51,14 @@ def get_video_qualities(request):
 
         try:
             ydl_opts = {
+                'format': format_string,
+                'outtmpl': output_file,
                 'referer': 'https://www.youtube.com/',
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-                'noplaylist': True,
-                'geo_bypass': True
+                'noplaylist': True,  # Ensure only the single video is processed
+                'geo_bypass': True,  # Bypass geographical restrictions
+                'no_warnings': True,  # Suppress warnings
+                'writeinfojson': False,  # Avoid writing additional metadata files
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
