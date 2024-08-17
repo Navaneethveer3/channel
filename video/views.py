@@ -6,6 +6,7 @@ import os
 import yt_dlp
 import logging
 import re
+from django.conf import settings
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
@@ -16,7 +17,6 @@ os.makedirs(download_path, exist_ok=True)
 def myproject(request):
     return render(request, 'myproject.html')
 
-
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -24,24 +24,24 @@ def extract_video_id(url):
     """
     Extract video ID from various YouTube URL formats.
     """
-    match = re.search(r'v=([^&]+)', url)
+    match = re.search(r'(?<=v=|embed/|youtu.be/)[\w-]{11}', url)
     if match:
-        return match.group(1)
+        return match.group(0)
     raise ValueError('Invalid video URL')
 
 def get_video_info(api_key, video_id):
     """
     Fetch video title and duration using YouTube Data API.
     """
-    api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
     url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=contentDetails,snippet'
     response = requests.get(url)
     if response.status_code != 200:
         raise ValueError(f'YouTube API request failed with status code {response.status_code}')
     
     data = response.json()
-    if 'items' in data and len(data['items']) > 0:
-        video_info = data['items'][0]
+    items = data.get('items', [])
+    if items:
+        video_info = items[0]
         return {
             'title': video_info['snippet']['title'],
             'duration': video_info['contentDetails']['duration']
@@ -56,7 +56,7 @@ def get_video_qualities(request):
     """
     if request.method == 'POST':
         link = request.POST.get('link')
-        api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'  # Replace with your YouTube Data API key
+        api_key = settings.YOUTUBE_API_KEY  # Use environment variable or Django settings
         
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
