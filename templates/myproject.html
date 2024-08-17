@@ -28,7 +28,7 @@
             }
 
             try {
-                const response = await fetch('/video/get_video_qualities/', {
+                const response = await fetch('/get_video_qualities/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -80,7 +80,7 @@
             }
 
             try {
-                const response = await fetch('/video/download_video/', {
+                const response = await fetch('/download_video/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
