@@ -45,13 +45,13 @@ def get_video_info(api_key, video_id):
 @csrf_exempt
 def get_video_qualities(request):
     """Fetch available video formats and qualities for the given YouTube video URL."""
-    api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
     if request.method == 'POST':
         link = request.POST.get('link')
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
 
         try:
+            api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
             # Fetch available formats and qualities using yt-dlp
             ydl_opts = {
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
