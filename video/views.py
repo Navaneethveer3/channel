@@ -9,8 +9,6 @@ from django.conf import settings
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
-
-# Ensure the download path exists
 os.makedirs(download_path, exist_ok=True)
 
 def myproject(request):
@@ -92,14 +90,13 @@ def download_video(request):
             return JsonResponse({'error': 'Quality parameter is required'}, status=400)
 
         video_id = extract_video_id(link)
-        filename = f"video-{video_id}.mp4"  # Use video ID to generate filename
+        filename = f"video-{video_id}.mp4"
         output_file = os.path.join(download_path, filename)
 
-        # Construct the format string based on the selected quality
         format_string = f"bestvideo[height >= {quality}]+bestaudio/best"
 
         youtube_dl_options = {
-            "format": format_string,  # Set format to the selected quality
+            "format": format_string,
             "outtmpl": output_file,
         }
         
@@ -107,9 +104,7 @@ def download_video(request):
             with yt_dlp.YoutubeDL(youtube_dl_options) as ydl:
                 ydl.download([link])
             
-            # Fetch video info
-            api_key = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'  # Consider moving to settings
-            video_info = get_video_info(api_key, video_id)
+            video_info = get_video_info(settings.YOUTUBE_API_KEY, video_id)
             
             return JsonResponse({
                 "status": "success",
