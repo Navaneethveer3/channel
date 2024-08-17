@@ -55,7 +55,7 @@ def get_video_qualities(request):
             # Fetch available formats and qualities using yt-dlp
             ydl_opts = {
                 'referer': 'https://www.youtube.com/',
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
