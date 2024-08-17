@@ -38,11 +38,13 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok.');
+                    const errorText = await response.text();
+                    throw new Error(`Network response was not ok. Status: ${response.status}. Text: ${errorText}`);
                 }
-
-                const result = await response.json();
-                if (result.status === 'success') {
+            }
+            const result = await response.json();
+            console.log('Result:', result);
+            if (result.status === 'success') {
                     const qualitySelect = document.getElementById('video-quality');
                     qualitySelect.innerHTML = ''; // Clear previous options
 
