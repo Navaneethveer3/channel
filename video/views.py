@@ -26,7 +26,8 @@ def get_video_info(api_key, video_id):
     """
     Fetch video title and duration using YouTube Data API.
     """
-    url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key=AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8&part=contentDetails,snippet'
+    api_key = settings.YOUTUBE_API_KEY
+    url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={api_key}&part=contentDetails,snippet'
     response = requests.get(url)
     if response.status_code != 200:
         raise ValueError(f'YouTube API request failed with status code {response.status_code}')
