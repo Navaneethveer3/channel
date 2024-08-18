@@ -6,6 +6,7 @@ import re
 import yt_dlp
 import requests
 import json
+from googleapiclient.discovery import build
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
@@ -14,6 +15,9 @@ os.makedirs(download_path, exist_ok=True)
 # ScraperAPI credentials
 SCRAPERAPI_KEY = '745e84f86d0ce7981748c263869e87ba'
 SCRAPERAPI_URL = "http://api.scraperapi.com"
+
+# YouTube Data API credentials
+YOUTUBE_API_KEY = ''
 
 def myproject(request):
     return render(request, 'myproject.html')
@@ -33,25 +37,47 @@ def fetch_with_scraperapi(url, params=None):
     response.raise_for_status()
     return response.text
 
-def get_video_info(video_url):
+def get_video_info_from_api(video_id):
     """
-    Fetch video title and duration using ScraperAPI.
+    Fetch video title and duration using YouTube Data API.
     """
-    try:
-        html_content = fetch_with_scraperapi(video_url, {'url': video_url})
-        
-        # Extract video title
-        title_match = re.search(r'<meta name="title" content="(.*?)"', html_content)
-        title = title_match.group(1) if title_match else 'Unknown Title'
-        
-        # Extract video duration
-        duration_match = re.search(r'<meta itemprop="duration" content="(.*?)"', html_content)
-        duration = duration_match.group(1) if duration_match else 'Unknown Duration'
-
+    youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
+    request = youtube.videos().list(
+        part='snippet,contentDetails',
+        id=video_id
+    )
+    response = request.execute()
+    
+    if response['items']:
+        item = response['items'][0]
+        title = item['snippet']['title']
+        duration = item['contentDetails']['duration']
         return {
             'title': title,
             'duration': duration
         }
+    return {'title': 'Unknown Title', 'duration': 'Unknown Duration'}
+
+def get_video_info(video_url):
+    """
+    Fetch video info using ScraperAPI or fallback to YouTube Data API.
+    """
+    try:
+        video_id = extract_video_id(video_url)
+        # Attempt to get video info using ScraperAPI
+        html_content = fetch_with_scraperapi(video_url, {'url': video_url})
+        # Extract video title and duration from HTML
+        title_match = re.search(r'<meta name="title" content="(.*?)"', html_content)
+        title = title_match.group(1) if title_match else 'Unknown Title'
+        duration_match = re.search(r'<meta itemprop="duration" content="(.*?)"', html_content)
+        duration = duration_match.group(1) if duration_match else 'Unknown Duration'
+        
+        # Fallback to YouTube Data API if info is not extracted
+        if title == 'Unknown Title' or duration == 'Unknown Duration':
+            return get_video_info_from_api(video_id)
+        
+        return {'title': title, 'duration': duration}
+    
     except Exception as e:
         raise ValueError(f'Failed to fetch video info: {e}')
 
