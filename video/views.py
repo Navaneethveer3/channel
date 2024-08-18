@@ -17,7 +17,7 @@ SCRAPERAPI_KEY = '745e84f86d0ce7981748c263869e87ba'
 SCRAPERAPI_URL = "http://api.scraperapi.com"
 
 # YouTube Data API credentials
-YOUTUBE_API_KEY = ''
+YOUTUBE_API_KEY = 'AIzaSyD_znizOfuO62ZLybi1vXfM-IyWgA8ymQ8'
 
 def myproject(request):
     return render(request, 'myproject.html')
