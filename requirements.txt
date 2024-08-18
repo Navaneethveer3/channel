@@ -107,4 +107,5 @@ wrapt==1.16.0
 yarg==0.1.9
 yt-dlp==2024.08.06
 selenium==4.6.0
+webdriver-manager==4.5.0  
 
