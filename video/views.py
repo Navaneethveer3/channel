@@ -52,8 +52,13 @@ def get_video_qualities(request):
 
         try:
             ydl_opts = { 
-                "user_agent" : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.97 Safari/537.36',
-                'quiet' : True
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'quiet': True,
+                'noplaylist': True,
+                'geo_bypass': True,
+                'referer': 'https://www.youtube.com/',
+                'add_header': [('Accept-Language','en-US,en;q=0.9')],
+                'force_generic_extractor' : True,
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
