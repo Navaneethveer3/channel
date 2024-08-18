@@ -7,6 +7,7 @@ import yt_dlp
 import requests
 import json
 from googleapiclient.discovery import build
+import time
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
@@ -29,13 +30,24 @@ def extract_video_id(url):
         return match.group(1)
     raise ValueError('Invalid YouTube URL')
 
-def fetch_with_scraperapi(url, params=None):
-    """Fetch content from a URL using ScraperAPI."""
+def fetch_with_scraperapi(url, params=None, headers=None):
+    """Fetch content from a URL using ScraperAPI with rotating IPs."""
     params = params or {}
     params['api_key'] = SCRAPERAPI_KEY
-    response = requests.get(SCRAPERAPI_URL, params=params)
-    response.raise_for_status()
-    return response.text
+    params['url'] = url  # Add the target URL as a parameter
+
+    retries = 3
+    for attempt in range(retries):
+        try:
+            response = requests.get(SCRAPERAPI_URL, params=params, headers=headers)
+            response.raise_for_status()
+            return response.text
+        except requests.RequestException as e:
+            if attempt < retries - 1:
+                time.sleep(2)  # Wait before retrying
+            else:
+                raise ValueError(f'Failed to fetch content after {retries} attempts: {e}')
+
 
 def get_video_info_from_api(video_id):
     """
