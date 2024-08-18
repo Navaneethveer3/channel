@@ -23,7 +23,12 @@ def get_video_qualities(request):
         
         if not link:
             return JsonResponse({'error': 'Link parameter is required'}, status=400)
-
+        youtube_dl_options = {
+            "headers": {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+        }
+    
         try:
             with yt_dlp.YoutubeDL() as ydl:
                 info = ydl.extract_info(link, download=False)
@@ -63,6 +68,9 @@ def download_video(request):
         youtube_dl_options = {
             "format": format_string,  # Set format to the selected quality
             "outtmpl": output_file,
+            "headers": {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
         }
         
         try:
