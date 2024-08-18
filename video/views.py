@@ -13,7 +13,7 @@ os.makedirs(download_path, exist_ok=True)
 
 # ScraperAPI credentials
 SCRAPERAPI_KEY = '745e84f86d0ce7981748c263869e87ba'
-SCRAPERAPI_URL = "http://api.scraperapi.com?api_key=745e84f86d0ce7981748c263869e87ba&url=http://httpbin.org/ip"
+SCRAPERAPI_URL = "http://api.scraperapi.com"
 
 def myproject(request):
     return render(request, 'myproject.html')
