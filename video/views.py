@@ -4,18 +4,16 @@ from django.views.decorators.csrf import csrf_exempt
 import os
 import re
 import yt_dlp
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-import time
+import requests
+import json
 
 # Directory where downloaded videos will be saved
 download_path = os.path.join(os.getcwd(), "media")
 os.makedirs(download_path, exist_ok=True)
 
-# Path to your ChromeDriver
-CHROMEDRIVER_PATH = '/path/to/chromedriver'
+# ScraperAPI credentials
+SCRAPERAPI_KEY = '745e84f86d0ce7981748c263869e87ba'
+SCRAPERAPI_URL = "http://api.scraperapi.com?api_key=745e84f86d0ce7981748c263869e87ba&url=http://httpbin.org/ip"
 
 def myproject(request):
     return render(request, 'myproject.html')
@@ -27,29 +25,28 @@ def extract_video_id(url):
         return match.group(1)
     raise ValueError('Invalid YouTube URL')
 
+def fetch_with_scraperapi(url, params=None):
+    """Fetch content from a URL using ScraperAPI."""
+    params = params or {}
+    params['api_key'] = SCRAPERAPI_KEY
+    response = requests.get(SCRAPERAPI_URL, params=params)
+    response.raise_for_status()
+    return response.text
+
 def get_video_info(video_url):
     """
-    Fetch video title and duration using Selenium WebDriver.
+    Fetch video title and duration using ScraperAPI.
     """
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run headless Chrome
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-
-    service = Service(CHROMEDRIVER_PATH)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-
     try:
-        driver.get(video_url)
-        time.sleep(3)  # Wait for the page to load
-
+        html_content = fetch_with_scraperapi(video_url, {'url': video_url})
+        
         # Extract video title
-        title_element = driver.find_element(By.CSS_SELECTOR, 'meta[name="title"]')
-        title = title_element.get_attribute('content') if title_element else 'Unknown Title'
-
+        title_match = re.search(r'<meta name="title" content="(.*?)"', html_content)
+        title = title_match.group(1) if title_match else 'Unknown Title'
+        
         # Extract video duration
-        duration_element = driver.find_element(By.CSS_SELECTOR, 'meta[itemprop="duration"]')
-        duration = duration_element.get_attribute('content') if duration_element else 'Unknown Duration'
+        duration_match = re.search(r'<meta itemprop="duration" content="(.*?)"', html_content)
+        duration = duration_match.group(1) if duration_match else 'Unknown Duration'
 
         return {
             'title': title,
@@ -57,8 +54,6 @@ def get_video_info(video_url):
         }
     except Exception as e:
         raise ValueError(f'Failed to fetch video info: {e}')
-    finally:
-        driver.quit()
 
 @csrf_exempt
 def get_video_qualities(request):
@@ -76,7 +71,7 @@ def get_video_qualities(request):
                 'geo_bypass': True,
                 'referer': 'https://www.youtube.com/',
                 'add_header': [('Accept-Language','en-US,en;q=0.9')],
-                'force_generic_extractor' : True,
+                'force_generic_extractor': True,
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(link, download=False)
@@ -120,7 +115,7 @@ def download_video(request):
         format_string = f"bestvideo[height >= {quality}]+bestaudio/best"
 
         ydl_opts = {
-            "user_agent" : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.97 Safari/537.36',
+            "user_agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.97 Safari/537.36',
             "format": format_string,
             "outtmpl": output_file,
             'referer': 'https://www.youtube.com/',
